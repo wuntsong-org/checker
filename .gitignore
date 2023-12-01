@@ -1,0 +1,7 @@
+.idea
+etc
+tmp
+cert
+
+*.exe
+*.out
