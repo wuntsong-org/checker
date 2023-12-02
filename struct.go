@@ -111,7 +111,7 @@ func (c *Checker) checkInt64(vi int64, field *reflect.StructField) errors.WTErro
 					return ReturnFieldError(field, err.Error())
 				}
 
-				if vi < intMin {
+				if vi <= intMin {
 					return ReturnFieldError(field, "too small")
 				}
 			}
@@ -204,7 +204,7 @@ func (c *Checker) checkString(vi string, field *reflect.StructField) errors.WTEr
 					return ReturnFieldError(field, err.Error())
 				}
 
-				if len(vi) < int(stringLengthMin) {
+				if len(vi) <= int(stringLengthMin) {
 					return ReturnFieldError(field, "too short")
 				}
 			}
@@ -302,7 +302,7 @@ func (c *Checker) checkSlice(s any, field *reflect.StructField) errors.WTError {
 				return ReturnFieldError(field, err.Error())
 			}
 
-			if sv.Len() < int(sliceLengthMin) {
+			if sv.Len() <= int(sliceLengthMin) {
 				return ReturnFieldError(field, "too short")
 			}
 		}
@@ -450,7 +450,7 @@ func (c *Checker) checkMap(s any, field *reflect.StructField) errors.WTError {
 				return ReturnFieldError(field, err.Error())
 			}
 
-			if sv.Len() < int(mapLengthMin) {
+			if sv.Len() <= int(mapLengthMin) {
 				return ReturnFieldError(field, "too short")
 			}
 		}
