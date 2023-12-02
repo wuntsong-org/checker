@@ -1,6 +1,7 @@
 package checker
 
 import (
+	"encoding/json"
 	errors "github.com/wuntsong/wterrors"
 	"reflect"
 	"regexp"
@@ -19,6 +20,7 @@ const TagIntZero = "ci-zero"     // int允许为zero
 const TagIntCheck = "ci-checker" // 检查函数
 const TagIntMust = "ci-must"     // 检查函数
 
+const TagStringJsonNumber = "cs-json-number"
 const TagStringLengthMin = "cs-min"
 const TagStringLengthMax = "cs-max"
 const TagStringZero = "cs-zero"
@@ -139,6 +141,15 @@ func (c *Checker) checkString(vi string, field *reflect.StructField) errors.WTEr
 
 	if field.Tag.Get(TagIgnore) == "true" {
 		return nil
+	}
+
+	if field.Tag.Get(TagStringJsonNumber) == "true" {
+		jsonNumber, err := json.Number(vi).Int64()
+		if err != nil {
+			return ReturnFieldError(field, err.Error())
+		}
+
+		return c.checkInt64(jsonNumber, field)
 	}
 
 	stringZero := field.Tag.Get(TagStringZero)
