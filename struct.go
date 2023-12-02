@@ -174,6 +174,7 @@ func (c *Checker) checkString(vi string, field *reflect.StructField) errors.WTEr
 			tagMax := field.Tag.Get(TagStringLengthMax)
 			tagMin := field.Tag.Get(TagStringLengthMin)
 			tagLength := field.Tag.Get(TagStringLength)
+			tagRegex := field.Tag.Get(TagStringRegex)
 
 			if tagLength != "" {
 				stringLength, err := strconv.ParseInt(tagLength, 10, 64)
@@ -207,18 +208,17 @@ func (c *Checker) checkString(vi string, field *reflect.StructField) errors.WTEr
 					return ReturnFieldError(field, "too short")
 				}
 			}
-		}
-	}
 
-	rg := field.Tag.Get(TagStringRegex)
-	if rg != "" {
-		r, err := regexp.Compile(rg)
-		if err != nil {
-			return ReturnFieldError(field, err.Error())
-		}
+			if tagRegex != "" {
+				r, err := regexp.Compile(tagRegex)
+				if err != nil {
+					return ReturnFieldError(field, err.Error())
+				}
 
-		if !r.MatchString(vi) {
-			return ReturnFieldError(field, "regex not match")
+				if !r.MatchString(vi) {
+					return ReturnFieldError(field, "regex not match")
+				}
+			}
 		}
 	}
 
