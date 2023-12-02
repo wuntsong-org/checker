@@ -23,6 +23,7 @@ const TagIntMust = "ci-must"     // 检查函数
 const TagStringJsonNumber = "cs-json-number"
 const TagStringLengthMin = "cs-min"
 const TagStringLengthMax = "cs-max"
+const TagStringLength = "cs-length"
 const TagStringZero = "cs-zero"
 const TagStringIgnore = "cs-ignore"
 const TagStringChecker = "cs-checker"
@@ -31,12 +32,14 @@ const TagStringRegex = "cs-regex"
 
 const TagSliceLengthMin = "csl-min"
 const TagSliceLengthMax = "csl-max"
+const TagSliceLength = "csl-length"
 const TagSliceZero = "csl-zero"
 const TagSliceIgnore = "csl-ignore"
 const TagSliceChecker = "csl-checker"
 
 const TagMapLengthMin = "cm-min"
 const TagMapLengthMax = "cm-max"
+const TagMapLength = "cm-length"
 const TagMapZero = "cm-zero"
 const TagMapIgnore = "cm-ignore"
 const TagMapChecker = "cm-checker"
@@ -91,19 +94,21 @@ func (c *Checker) checkInt64(vi int64, field *reflect.StructField) errors.WTErro
 			tagMax := field.Tag.Get(TagIntMax)
 			tagMin := field.Tag.Get(TagIntMin)
 
-			if tagMin != "" && tagMax != "" {
+			if tagMax != "" {
 				intMax, err := strconv.ParseInt(tagMax, 10, 64)
-				if err != nil {
-					return ReturnFieldError(field, err.Error())
-				}
-
-				intMin, err := strconv.ParseInt(tagMin, 10, 64)
 				if err != nil {
 					return ReturnFieldError(field, err.Error())
 				}
 
 				if vi > intMax {
 					return ReturnFieldError(field, "too big")
+				}
+			}
+
+			if tagMin != "" {
+				intMin, err := strconv.ParseInt(tagMin, 10, 64)
+				if err != nil {
+					return ReturnFieldError(field, err.Error())
 				}
 
 				if vi < intMin {
@@ -168,20 +173,34 @@ func (c *Checker) checkString(vi string, field *reflect.StructField) errors.WTEr
 		} else {
 			tagMax := field.Tag.Get(TagStringLengthMax)
 			tagMin := field.Tag.Get(TagStringLengthMin)
+			tagLength := field.Tag.Get(TagStringLength)
 
-			if tagMin != "" && tagMax != "" {
-				stringLengthMax, err := strconv.ParseInt(tagMax, 10, 64)
+			if tagLength != "" {
+				stringLength, err := strconv.ParseInt(tagLength, 10, 64)
 				if err != nil {
 					return ReturnFieldError(field, err.Error())
 				}
 
-				stringLengthMin, err := strconv.ParseInt(tagMin, 10, 64)
+				if len(vi) != int(stringLength) {
+					return ReturnFieldError(field, "bad length")
+				}
+			}
+
+			if tagMax != "" {
+				stringLengthMax, err := strconv.ParseInt(tagMax, 10, 64)
 				if err != nil {
 					return ReturnFieldError(field, err.Error())
 				}
 
 				if len(vi) > int(stringLengthMax) {
 					return ReturnFieldError(field, "too long")
+				}
+			}
+
+			if tagMin != "" {
+				stringLengthMin, err := strconv.ParseInt(tagMin, 10, 64)
+				if err != nil {
+					return ReturnFieldError(field, err.Error())
 				}
 
 				if len(vi) < int(stringLengthMin) {
@@ -253,18 +272,34 @@ func (c *Checker) checkSlice(s any, field *reflect.StructField) errors.WTError {
 	} else {
 		tagMax := field.Tag.Get(TagSliceLengthMax)
 		tagMin := field.Tag.Get(TagSliceLengthMin)
+		tagLength := field.Tag.Get(TagSliceLength)
 
-		if tagMin != "" && tagMax != "" {
+		if tagLength != "" {
+			sliceLength, err := strconv.ParseInt(tagLength, 10, 64)
+			if err != nil {
+				return ReturnFieldError(field, err.Error())
+			}
+
+			if sv.Len() != int(sliceLength) {
+				return ReturnFieldError(field, "bad length")
+			}
+		}
+
+		if tagMax != "" {
 			sliceLengthMax, err := strconv.ParseInt(tagMax, 10, 64)
 			if err != nil {
 				return ReturnFieldError(field, err.Error())
 			}
 
+			if sv.Len() > int(sliceLengthMax) {
+				return ReturnFieldError(field, "too long")
+			}
+		}
+
+		if tagMin != "" {
 			sliceLengthMin, err := strconv.ParseInt(tagMin, 10, 64)
 			if err != nil {
 				return ReturnFieldError(field, err.Error())
-			} else if sv.Len() > int(sliceLengthMax) {
-				return ReturnFieldError(field, "too long")
 			}
 
 			if sv.Len() < int(sliceLengthMin) {
@@ -385,18 +420,34 @@ func (c *Checker) checkMap(s any, field *reflect.StructField) errors.WTError {
 	} else {
 		tagMax := field.Tag.Get(TagMapLengthMax)
 		tagMin := field.Tag.Get(TagMapLengthMin)
+		tagLength := field.Tag.Get(TagMapLength)
 
-		if tagMin != "" && tagMax != "" {
+		if tagLength != "" {
+			mapLength, err := strconv.ParseInt(tagLength, 10, 64)
+			if err != nil {
+				return ReturnFieldError(field, err.Error())
+			}
+
+			if sv.Len() != int(mapLength) {
+				return ReturnFieldError(field, "bad length")
+			}
+		}
+
+		if tagMax != "" {
 			mapLengthMax, err := strconv.ParseInt(tagMax, 10, 64)
 			if err != nil {
 				return ReturnFieldError(field, err.Error())
 			}
 
+			if sv.Len() > int(mapLengthMax) {
+				return ReturnFieldError(field, "too long")
+			}
+		}
+
+		if tagMin != "" {
 			mapLengthMin, err := strconv.ParseInt(tagMin, 10, 64)
 			if err != nil {
 				return ReturnFieldError(field, err.Error())
-			} else if sv.Len() > int(mapLengthMax) {
-				return ReturnFieldError(field, "too long")
 			}
 
 			if sv.Len() < int(mapLengthMin) {
