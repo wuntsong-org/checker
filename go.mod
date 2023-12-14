@@ -1,4 +1,4 @@
-module github.com/wuntsong/checker
+module github.com/wuntsong-org/checker
 
 go 1.21
 
