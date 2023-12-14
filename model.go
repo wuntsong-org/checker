@@ -1,7 +1,7 @@
 package checker
 
 import (
-	errors "github.com/wuntsong/wterrors"
+	errors "github.com/wuntsong-org/wterrors"
 	"reflect"
 )
 

@@ -2,7 +2,7 @@ package checker
 
 import (
 	"fmt"
-	errors "github.com/wuntsong/wterrors"
+	errors "github.com/wuntsong-org/wterrors"
 	"reflect"
 )
 

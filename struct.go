@@ -2,47 +2,49 @@ package checker
 
 import (
 	"encoding/json"
-	errors "github.com/wuntsong/wterrors"
+	errors "github.com/wuntsong-org/wterrors"
 	"reflect"
 	"regexp"
 	"strconv"
 	"strings"
 )
 
-const TagIgnore = "c-ignore"
+const TagIgnore = "c-ignore" // 忽略
 
 const TagBoolMust = "cb-must" // bool必须为指定值
 
-const TagIntIgnore = "ci-ignore" // int忽略范围检查
+const TagIntIgnore = "ci-ignore" // 忽略检查
 const TagIntMax = "ci-max"       // int最大值
 const TagIntMin = "ci-min"       // int最小值
-const TagIntZero = "ci-zero"     // int允许为zero
+const TagIntZero = "ci-zero"     // int允许为0（ignore忽略ci-min等检查，notcheck则忽略全部检查）
 const TagIntCheck = "ci-checker" // 检查函数
-const TagIntMust = "ci-must"     // 检查函数
+const TagIntMust = "ci-must"     // 必须值
 
-const TagStringJsonNumber = "cs-json-number"
-const TagStringLengthMin = "cs-min"
-const TagStringLengthMax = "cs-max"
-const TagStringLength = "cs-length"
-const TagStringZero = "cs-zero"
-const TagStringIgnore = "cs-ignore"
-const TagStringChecker = "cs-checker"
-const TagStringMust = "cs-must"
-const TagStringRegex = "cs-regex"
+const TagStringJsonNumber = "cs-json-number" // 允许是json number
+const TagStringLengthMin = "cs-min"          // 最短长度
+const TagStringLengthMax = "cs-max"          // 最大长度
+const TagStringLength = "cs-length"          // 固定长度
+const TagStringZero = "cs-zero"              // 零值
+const TagStringIgnore = "cs-ignore"          // 忽略检查
+const TagStringChecker = "cs-checker"        // 检查函数
+const TagStringMust = "cs-must"              // 必须值
+const TagStringRegex = "cs-regex"            // 检查正则
 
-const TagSliceLengthMin = "csl-min"
-const TagSliceLengthMax = "csl-max"
-const TagSliceLength = "csl-length"
-const TagSliceZero = "csl-zero"
-const TagSliceIgnore = "csl-ignore"
-const TagSliceChecker = "csl-checker"
+// 备注：应用在slice上的其他tag（除csl的tag），会被用于其子元素的检查
+const TagSliceLengthMin = "csl-min"   // 最大长度
+const TagSliceLengthMax = "csl-max"   // 最短长度
+const TagSliceLength = "csl-length"   // 必须长度
+const TagSliceZero = "csl-zero"       // 零值
+const TagSliceIgnore = "csl-ignore"   // 忽略
+const TagSliceChecker = "csl-checker" // 检查函数
 
-const TagMapLengthMin = "cm-min"
-const TagMapLengthMax = "cm-max"
-const TagMapLength = "cm-length"
-const TagMapZero = "cm-zero"
-const TagMapIgnore = "cm-ignore"
-const TagMapChecker = "cm-checker"
+// 备注：应用在map上的其他tag，**不会**被用于其子元素的检查
+const TagMapLengthMin = "cm-min"   // 最大长度
+const TagMapLengthMax = "cm-max"   // 最小长度
+const TagMapLength = "cm-length"   // 必须长度
+const TagMapZero = "cm-zero"       // 零值
+const TagMapIgnore = "cm-ignore"   // 忽略
+const TagMapChecker = "cm-checker" // 检查函数
 
 func (c *Checker) checkBool(vi bool, field *reflect.StructField) errors.WTError {
 	if field == nil {
